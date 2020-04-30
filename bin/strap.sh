@@ -53,6 +53,15 @@ STDIN_FILE_DESCRIPTOR="0"
 # CUSTOM_HOMEBREW_TAP=
 # CUSTOM_BREW_COMMAND=
 STRAP_ISSUES_URL='https://github.com/maxfierke/strap-linux/issues/new'
+STRAP_DISTRO=`lsb_release -is`
+
+if [ "$STRAP_DISTRO" == "Ubuntu" ] || [ "$STRAP_DISTRO" == "Debian" ]; then
+  STRAP_DISTRO_FAMILY="Debian"
+elif [ "$STRAP_DISTRO" == "RedHat" ] || [ "$STRAP_DISTRO" == "RHEL" ] || [ "$STRAP_DISTRO" == "CentOS" ]; then
+  STRAP_DISTRO_FAMILY="RHEL"
+else
+  STRAP_DISTRO_FAMILY="Unknown"
+fi
 
 # We want to always prompt for sudo password at least once rather than doing
 # root stuff unexpectedly.
@@ -146,62 +155,36 @@ run_dotfile_scripts() {
 }
 
 [ "$USER" = "root" ] && abort "Run Strap as yourself, not root."
-# TODO: This may need to be wheel on RHEL or other distros
-groups | grep $Q -E "\b(sudo)\b" || abort "Add $USER to the sudo group."
+
+if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
+  STRAP_SUDOER_GROUP="sudo"
+elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
+  STRAP_SUDOER_GROUP="wheel"
+else
+  logn "Unknown distro, assuming 'wheel' is the sudoers group."
+  STRAP_SUDOER_GROUP="wheel"
+fi
+
+groups | grep $Q -E "\b($STRAP_SUDOER_GROUP)\b" || abort "Add $USER to the $STRAP_SUDOER_GROUP group."
 
 # Prevent sleeping during script execution, as long as the machine is on AC power
 # TODO: Install caffeine
 # TODO: Rewrite the following in terms of caffeine
 # caffeinate -s -w $$ &
 
-# Set some basic security settings.
-# logn "Configuring security settings:"
-# TODO: Rewrite for gsettings/dconf or similar
-# defaults write com.apple.screensaver askForPassword -int 1
-# defaults write com.apple.screensaver askForPasswordDelay -int 0
-
-# if [ -n "$STRAP_GIT_NAME" ] && [ -n "$STRAP_GIT_EMAIL" ]; then
-#   LOGIN_TEXT=$(escape "Found this computer? Please contact $STRAP_GIT_NAME at $STRAP_GIT_EMAIL.")
-#   echo "$LOGIN_TEXT" | grep -q '[()]' && LOGIN_TEXT="'$LOGIN_TEXT'"
-#   sudo_askpass defaults write /Library/Preferences/com.apple.loginwindow \
-#     LoginwindowText \
-#     "$LOGIN_TEXT"
-# fi
-# logk
-
-# Check and enable full-disk encryption.
-# TODO: Probably have to omit this.
-# logn "Checking full-disk encryption status:"
-# if fdesetup status | grep $Q -E "FileVault is (On|Off, but will be enabled after the next restart)."; then
-#   logk
-# elif [ -n "$STRAP_CI" ]; then
-#   echo
-#   logn "Skipping full-disk encryption for CI"
-# elif [ -n "$STRAP_INTERACTIVE" ]; then
-#   echo
-#   log "Enabling full-disk encryption on next reboot:"
-#   sudo_askpass fdesetup enable -user "$USER" \
-#     | tee ~/Desktop/"FileVault Recovery Key.txt"
-#   logk
-# else
-#   echo
-#   abort "Run 'sudo fdesetup enable -user \"$USER\"' to enable full-disk encryption."
-# fi
-
 # Install the development tools
 if ! [ -x "$(command -v git)" ]
 then
-
-  if [ -x "$(command -v apt-get)" ]; then
+  if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
     log "Installing build-essential and other development tools:"
     sudo_askpass apt-get install build-essential curl file git
-  elif [ -x "$(command -v yum)" ]; then
+  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
     log "Installing Development Tools group"
     sudo_askpass yum groupinstall 'Development Tools'
     sudo_askpass yum install curl file git
   else
     logn "Using unsupported distro. Can't install development tools"
-    logn "Continuing onwards, but this may fail."
+    logn "Continuing onwards, but this may fail if required tools are missing."
   fi
   logk
 fi
@@ -251,13 +234,13 @@ HOMEBREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
 (
   cd "$HOMEBREW_PREFIX"
   sudo_askpass mkdir -p               Cellar Frameworks bin etc include lib opt sbin share var
-  sudo_askpass chown -R "$USER:sudo" Cellar Frameworks bin etc include lib opt sbin share var
+  sudo_askpass chown -R "$USER:$STRAP_SUDOER_GROUP" Cellar Frameworks bin etc include lib opt sbin share var
 )
 
 HOMEBREW_REPOSITORY="$(brew --repository 2>/dev/null || true)"
 [ -n "$HOMEBREW_REPOSITORY" ] || HOMEBREW_REPOSITORY="/home/linuxbrew/.linuxbrew/Homebrew"
 [ -d "$HOMEBREW_REPOSITORY" ] || sudo_askpass mkdir -p "$HOMEBREW_REPOSITORY"
-sudo_askpass chown -R "$USER:sudo" "$HOMEBREW_REPOSITORY"
+sudo_askpass chown -R "$USER:$STRAP_SUDOER_GROUP" "$HOMEBREW_REPOSITORY"
 
 if [ $HOMEBREW_PREFIX != $HOMEBREW_REPOSITORY ]
 then
@@ -289,17 +272,23 @@ logk
 
 # Check and install any remaining software updates.
 logn "Checking for software updates:"
-if apt list --upgradable | grep $Q "Listing... Done"; then
+
+if [ ! -z "$STRAP_CI" ]; then
+  echo "Skipping software updates for CI"
+elif [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
+  sudo_askpass apt-get update
+
+  log "Installing software updates:"
+  sudo_askpass apt-get upgrade -y
+  logk
+elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
+  sudo_askpass yum check-update
+
+  log "Installing software updates:"
+  sudo_askpass yum update -y
   logk
 else
-  echo
-  log "Installing software updates:"
-  if [ -z "$STRAP_CI" ]; then
-    sudo_askpass apt-get upgrade
-  else
-    echo "Skipping software updates for CI"
-  fi
-  logk
+  logn "Unknown distro, can't check for updates. Skipping."
 fi
 
 # Setup dotfiles
