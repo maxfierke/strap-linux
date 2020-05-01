@@ -156,16 +156,18 @@ run_dotfile_scripts() {
 
 [ "$USER" = "root" ] && abort "Run Strap as yourself, not root."
 
-if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
-  STRAP_SUDOER_GROUP="sudo"
-elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
-  STRAP_SUDOER_GROUP="wheel"
-else
-  logn "Unknown distro, assuming 'wheel' is the sudoers group."
-  STRAP_SUDOER_GROUP="wheel"
-fi
+if [ -z "$STRAP_CI" ]; then
+  if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
+    STRAP_SUDOER_GROUP="sudo"
+  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
+    STRAP_SUDOER_GROUP="wheel"
+  else
+    logn "Unknown distro, assuming 'wheel' is the sudoers group."
+    STRAP_SUDOER_GROUP="wheel"
+  fi
 
-groups | grep $Q -E "\b($STRAP_SUDOER_GROUP)\b" || abort "Add $USER to the $STRAP_SUDOER_GROUP group."
+  groups | grep $Q -E "\b($STRAP_SUDOER_GROUP)\b" || abort "Add $USER to the $STRAP_SUDOER_GROUP group."
+fi
 
 # Prevent sleeping during script execution, as long as the machine is on AC power
 # TODO: Install caffeine
