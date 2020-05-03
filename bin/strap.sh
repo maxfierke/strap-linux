@@ -192,7 +192,7 @@ then
 fi
 
 # Setup Git configuration.
-logn "Configuring Git:"
+log "Configuring Git:"
 if [ -n "$STRAP_GIT_NAME" ] && ! git config user.name >/dev/null; then
   git config --global user.name "$STRAP_GIT_NAME"
 fi
@@ -209,6 +209,7 @@ fi
 if ! git config push.default >/dev/null; then
   git config --global push.default simple
 fi
+logk
 
 # Setup Homebrew directory and permissions.
 logn "Installing Homebrew:"
@@ -273,6 +274,44 @@ elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
   logk
 else
   logn "Unknown distro, can't check for updates. Skipping."
+fi
+
+if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
+  # Setup AppArmor and auditd
+  sudo_askpass apt-get install -y apparmor-profiles apparmor-utils auditd
+
+  log "Configuring apparmor:"
+  sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.firefox
+  sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.avahi-daemon
+  sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.dnsmasq
+  sudo_askpass aa-enforce /etc/apparmor.d/bin.ping
+  sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.rsyslogd
+  logk
+
+  # Setup auto-updates for APT
+  log "Configuring automatic updates:"
+  EXISTS=$(grep "APT::Periodic::Update-Package-Lists \"1\"" /etc/apt/apt.conf.d/20auto-upgrades || true)
+  if [ -z "$EXISTS" ]; then
+    echo "APT::Periodic::Update-Package-Lists \"1\";" | sudo_askpass tee /etc/apt/apt.conf.d/20auto-upgrades
+  fi
+
+  EXISTS=$(grep "APT::Periodic::Unattended-Upgrade \"1\"" /etc/apt/apt.conf.d/20auto-upgrades || true)
+  if [ -z "$EXISTS" ]; then
+    echo "APT::Periodic::Unattended-Upgrade \"1\";" | sudo_askpass tee /etc/apt/apt.conf.d/20auto-upgrades
+  fi
+
+  EXISTS=$(grep "APT::Periodic::AutocleanInterval \"7\"" /etc/apt/apt.conf.d/10periodic || true)
+  if [ -z "$EXISTS" ]; then
+    echo "APT::Periodic::AutocleanInterval \"7\";" | sudo_askpass tee /etc/apt/apt.conf.d/10periodic
+  fi
+  sudo_askpass chmod 644 /etc/apt/apt.conf.d/20auto-upgrades
+  sudo_askpass chmod 644 /etc/apt/apt.conf.d/10periodic
+  logk
+
+  # Setting up firewall without any rules.
+  log "Enabling firewall (ufw):"
+  sudo_askpass ufw enable
+  logk
 fi
 
 # Setup dotfiles
