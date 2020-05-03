@@ -277,7 +277,7 @@ fi
 
 # Setup dotfiles
 if [ -n "$STRAP_GITHUB_USER" ]; then
-  DOTFILES_URL="https://github.com/$STRAP_GITHUB_USER/dotfiles"
+  DOTFILES_URL="git+ssh://git@github.com/$STRAP_GITHUB_USER/dotfiles"
 
   if git ls-remote "$DOTFILES_URL" &>/dev/null; then
     log "Fetching $STRAP_GITHUB_USER/dotfiles from GitHub:"
@@ -297,7 +297,7 @@ fi
 
 # Setup Brewfile
 if [ -n "$STRAP_GITHUB_USER" ] && { [ ! -f "$HOME/.Brewfile" ] || [ "$HOME/.Brewfile" -ef "$HOME/.homebrew-brewfile/Brewfile" ]; }; then
-  HOMEBREW_BREWFILE_URL="https://github.com/$STRAP_GITHUB_USER/homebrew-brewfile"
+  HOMEBREW_BREWFILE_URL="git+ssh://git@github.com/$STRAP_GITHUB_USER/homebrew-brewfile"
 
   if git ls-remote "$HOMEBREW_BREWFILE_URL" &>/dev/null; then
     log "Fetching $STRAP_GITHUB_USER/homebrew-brewfile from GitHub:"
