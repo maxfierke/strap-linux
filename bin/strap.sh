@@ -281,11 +281,15 @@ if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   sudo_askpass apt-get install -y apparmor-profiles apparmor-utils auditd
 
   log "Configuring apparmor:"
+  sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.evince
   sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.firefox
   sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.avahi-daemon
   sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.dnsmasq
   sudo_askpass aa-enforce /etc/apparmor.d/bin.ping
   sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.rsyslogd
+
+  [ -f "/etc/apparmor.d/usr.bin.chromium-browser" ] && sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.chromium-browser
+
   logk
 
   # Setup auto-updates for APT
