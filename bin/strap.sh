@@ -263,7 +263,7 @@ elif [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   sudo_askpass apt-get update
 
   log "Installing software updates:"
-  sudo_askpass apt-get upgrade -y
+  sudo_askpass apt-get dist-upgrade -y
   logk
 elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
   sudo_askpass yum check-update
