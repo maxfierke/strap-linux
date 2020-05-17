@@ -196,7 +196,7 @@ then
   elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
     log "Install Development Tools group"
     sudo_askpass dnf group install 'Development Tools'
-    sudo_askpass dnf install curl file git
+    sudo_askpass dnf install curl file git libxcrypt-compat
   else
     logn "Using unsupported distro. Can't install development tools"
     logn "Continuing onwards, but this may fail if required tools are missing."
