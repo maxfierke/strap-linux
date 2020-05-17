@@ -66,6 +66,8 @@ if [ "$STRAP_DISTRO" == "Ubuntu" ] || [ "$STRAP_DISTRO" == "Debian" ]; then
   STRAP_DISTRO_FAMILY="Debian"
 elif [ "$STRAP_DISTRO" == "RedHat" ] || [ "$STRAP_DISTRO" == "RHEL" ] || [ "$STRAP_DISTRO" == "CentOS" ]; then
   STRAP_DISTRO_FAMILY="RHEL"
+elif [ "$STRAP_DISTRO" == "Fedora" ]; then
+  STRAP_DISTRO_FAMILY="Fedora"
 else
   STRAP_DISTRO_FAMILY="Unknown"
 fi
@@ -191,6 +193,10 @@ then
     log "Installing Development Tools group"
     sudo_askpass yum groupinstall 'Development Tools'
     sudo_askpass yum install curl file git
+  elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
+    log "Install Development Tools group"
+    sudo_askpass dnf group install 'Development Tools'
+    sudo_askpass dnf install curl file git
   else
     logn "Using unsupported distro. Can't install development tools"
     logn "Continuing onwards, but this may fail if required tools are missing."
@@ -278,6 +284,12 @@ elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
 
   log "Installing software updates:"
   sudo_askpass yum update -y
+  logk
+elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
+  sudo_askpass dnf check-update
+
+  log "Installing software updates:"
+  sudo_askpass dnf update -y
   logk
 else
   logn "Unknown distro, can't check for updates. Skipping."
