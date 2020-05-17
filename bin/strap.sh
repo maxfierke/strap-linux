@@ -189,7 +189,7 @@ then
   if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
     log "Installing build-essential and other development tools:"
     sudo_askpass apt-get -y install build-essential curl file git zlib1g-dev \
-      openssl-dev libbz2-dev libreadline-dev xz-utils libffi-dev liblzma-dev
+      libssl-dev libbz2-dev libreadline-dev xz-utils libffi-dev liblzma-dev
   elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
     log "Installing Development Tools group and other development dependencies"
     sudo_askpass yum -y groupinstall 'Development Tools'
