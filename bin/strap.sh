@@ -168,7 +168,7 @@ run_dotfile_scripts() {
 if [ -z "$STRAP_CI" ]; then
   if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
     STRAP_SUDOER_GROUP="sudo"
-  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
+  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ] || [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
     STRAP_SUDOER_GROUP="wheel"
   else
     logn "Unknown distro, assuming 'wheel' is the sudoers group."
