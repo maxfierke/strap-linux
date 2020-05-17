@@ -265,6 +265,7 @@ logk
 log "Installing Homebrew taps and extensions:"
 brew bundle --file=- <<RUBY
 tap 'homebrew/core'
+tap 'linuxbrew/xorg'
 RUBY
 logk
 
