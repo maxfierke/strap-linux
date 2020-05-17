@@ -298,7 +298,7 @@ fi
 
 if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   # Setup AppArmor and auditd
-  sudo_askpass apt-get install -y apparmor-profiles apparmor-utils auditd
+  sudo_askpass apt-get install -y apparmor-profiles apparmor-utils
 
   log "Configuring apparmor:"
   sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.evince
