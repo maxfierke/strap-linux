@@ -280,13 +280,13 @@ elif [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   sudo_askpass apt-get dist-upgrade -y
   logk
 elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
-  sudo_askpass yum check-update
+  sudo_askpass yum check-update || [ $? -eq 100 ]
 
   log "Installing software updates:"
   sudo_askpass yum update -y
   logk
 elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
-  sudo_askpass dnf check-update
+  sudo_askpass dnf check-update || [ $? -eq 100 ]
 
   log "Installing software updates:"
   sudo_askpass dnf update -y
