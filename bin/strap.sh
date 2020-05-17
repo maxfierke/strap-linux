@@ -341,6 +341,11 @@ if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   logk
 fi
 
+# Unlink Homebrew's gcc (it's quite old, and supported distros will have newer)
+if [ -x "$HOMEBREW_PREFIX/bin/gcc" ]; then
+  brew unlink gcc
+fi
+
 # Setup dotfiles
 if [ -n "$STRAP_GITHUB_USER" ]; then
   DOTFILES_URL="git+ssh://git@github.com/$STRAP_GITHUB_USER/dotfiles"
