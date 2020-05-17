@@ -45,6 +45,13 @@ fi
 STDIN_FILE_DESCRIPTOR="0"
 [ -t "$STDIN_FILE_DESCRIPTOR" ] && STRAP_INTERACTIVE="1"
 
+# Check for LSB
+if [ ! -x "$(command -v lsb_release)" ]; then
+  if [ -x "$(command -v dnf)" ]; then
+    sudo_askpass dnf install redhat-lsb-core
+  fi
+fi
+
 # Set by web/app.rb
 # STRAP_GIT_NAME=
 # STRAP_GIT_EMAIL=
@@ -53,7 +60,7 @@ STDIN_FILE_DESCRIPTOR="0"
 # CUSTOM_HOMEBREW_TAP=
 # CUSTOM_BREW_COMMAND=
 STRAP_ISSUES_URL='https://github.com/maxfierke/strap-linux/issues/new'
-STRAP_DISTRO=`lsb_release -is`
+STRAP_DISTRO="$(lsb_release -is)"
 
 if [ "$STRAP_DISTRO" == "Ubuntu" ] || [ "$STRAP_DISTRO" == "Debian" ]; then
   STRAP_DISTRO_FAMILY="Debian"
@@ -258,7 +265,7 @@ logk
 # Check and install any remaining software updates.
 logn "Checking for software updates:"
 
-if [ ! -z "$STRAP_CI" ]; then
+if [ -n "$STRAP_CI" ]; then
   echo "Skipping software updates for CI"
 elif [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   sudo_askpass apt-get update
