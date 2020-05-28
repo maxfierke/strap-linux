@@ -208,7 +208,7 @@ then
 fi
 
 # Setup Git configuration.
-log "Configuring Git:"
+logn "Configuring Git:"
 if [ -n "$STRAP_GIT_NAME" ] && ! git config user.name >/dev/null; then
   git config --global user.name "$STRAP_GIT_NAME"
 fi
@@ -296,7 +296,7 @@ elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
   sudo_askpass dnf update -y
   logk
 else
-  logn "Unknown distro, can't check for updates. Skipping."
+  log "Unknown distro, can't check for updates. Skipping."
 fi
 
 if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
@@ -316,7 +316,7 @@ if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   logk
 
   # Setup auto-updates for APT
-  log "Configuring automatic updates:"
+  logn "Configuring automatic updates:"
   EXISTS=$(grep "APT::Periodic::Update-Package-Lists \"1\"" /etc/apt/apt.conf.d/20auto-upgrades || true)
   if [ -z "$EXISTS" ]; then
     echo "APT::Periodic::Update-Package-Lists \"1\";" | sudo_askpass tee /etc/apt/apt.conf.d/20auto-upgrades
@@ -341,9 +341,10 @@ if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   logk
 fi
 
-# Unlink Homebrew's gcc (it's quite old, and supported distros will have newer)
 if [ -x "$HOMEBREW_PREFIX/bin/gcc" ]; then
+  logn "Unlink Homebrew's gcc (it's quite old, and supported distros will have newer): "
   brew unlink gcc
+  logk
 fi
 
 # Setup dotfiles
