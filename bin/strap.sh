@@ -48,7 +48,7 @@ STDIN_FILE_DESCRIPTOR="0"
 # Check for LSB
 if [ ! -x "$(command -v lsb_release)" ]; then
   if [ -x "$(command -v dnf)" ]; then
-    sudo_askpass dnf install redhat-lsb-core
+    sudo_askpass dnf -y install redhat-lsb-core
   fi
 fi
 
