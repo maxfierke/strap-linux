@@ -199,7 +199,7 @@ then
     log "Installing Development Tools group and other development dependencies"
     sudo_askpass dnf -y group install 'Development Tools'
     sudo_askpass dnf -y install curl file git libxcrypt-compat zlib-devel xz-devel \
-      bzip2-devel readline-devel sqlite-devel openssl-devel libffi-devel
+      bzip2-devel readline-devel sqlite-devel openssl-devel libffi-devel libxml2-devel
   else
     logn "Using unsupported distro. Can't install development tools"
     logn "Continuing onwards, but this may fail if required tools are missing."
