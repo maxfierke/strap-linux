@@ -49,6 +49,8 @@ STDIN_FILE_DESCRIPTOR="0"
 if [ ! -x "$(command -v lsb_release)" ]; then
   if [ -x "$(command -v dnf)" ]; then
     sudo_askpass dnf -y install redhat-lsb-core
+  elif [ -x "$(command -v pacman)" ]; then
+    sudo_askpass pacman -S lsb-release
   fi
 fi
 
@@ -68,6 +70,8 @@ elif [ "$STRAP_DISTRO" == "RedHat" ] || [ "$STRAP_DISTRO" == "RHEL" ] || [ "$STR
   STRAP_DISTRO_FAMILY="RHEL"
 elif [ "$STRAP_DISTRO" == "Fedora" ]; then
   STRAP_DISTRO_FAMILY="Fedora"
+elif [ "$STRAP_DISTRO" == "Arch" || "$STRAP_DISTRO" == "ManjaroLinux" ]; then
+  STRAP_DISTRO_FAMILY="Arch"
 else
   STRAP_DISTRO_FAMILY="Unknown"
 fi
@@ -168,7 +172,7 @@ run_dotfile_scripts() {
 if [ -z "$STRAP_CI" ]; then
   if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
     STRAP_SUDOER_GROUP="sudo"
-  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ] || [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
+  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ] || [ "$STRAP_DISTRO_FAMILY" == "Fedora" ] || [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
     STRAP_SUDOER_GROUP="wheel"
   else
     logn "Unknown distro, assuming 'wheel' is the sudoers group."
@@ -200,6 +204,10 @@ then
     sudo_askpass dnf -y group install 'Development Tools'
     sudo_askpass dnf -y install curl file git libxcrypt-compat zlib-devel xz-devel \
       bzip2-devel readline-devel sqlite-devel openssl-devel libffi-devel libxml2-devel
+  elif [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
+    log "Installing base-devel and other development tools:"
+    sudo_askpass pacman -Sy base-devel bzip2 curl file git libffi openssl \
+      readline xz zlib
   else
     logn "Using unsupported distro. Can't install development tools"
     logn "Continuing onwards, but this may fail if required tools are missing."
@@ -293,6 +301,10 @@ elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
 
   log "Installing software updates:"
   sudo_askpass dnf update -y
+  logk
+elif [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
+  log "Installing software updates:"
+  sudo askpass pacman -Syu --no-confirm
   logk
 else
   log "Unknown distro, can't check for updates. Skipping."
