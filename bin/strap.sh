@@ -70,7 +70,7 @@ elif [ "$STRAP_DISTRO" == "RedHat" ] || [ "$STRAP_DISTRO" == "RHEL" ] || [ "$STR
   STRAP_DISTRO_FAMILY="RHEL"
 elif [ "$STRAP_DISTRO" == "Fedora" ]; then
   STRAP_DISTRO_FAMILY="Fedora"
-elif [ "$STRAP_DISTRO" == "Arch" || "$STRAP_DISTRO" == "ManjaroLinux" ]; then
+elif [ "$STRAP_DISTRO" == "Arch" ] || [ "$STRAP_DISTRO" == "ManjaroLinux" ]; then
   STRAP_DISTRO_FAMILY="Arch"
 else
   STRAP_DISTRO_FAMILY="Unknown"
