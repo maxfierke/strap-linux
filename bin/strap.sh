@@ -188,31 +188,31 @@ fi
 # caffeinate -s -w $$ &
 
 # Install the development tools
-if ! [ -x "$(command -v git)" ]
-then
-  if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
-    log "Installing build-essential and other development tools:"
-    sudo_askpass apt-get -y install build-essential curl file git zlib1g-dev \
-      libssl-dev libbz2-dev libreadline-dev xz-utils libffi-dev liblzma-dev
-  elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
-    log "Installing Development Tools group and other development dependencies"
-    sudo_askpass yum -y groupinstall 'Development Tools'
-    sudo_askpass yum -y install curl file git zlib-devel xz-devel bzip2-devel \
-      readline-devel sqlite-devel openssl-devel libffi-devel
-  elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
-    log "Installing Development Tools group and other development dependencies"
-    sudo_askpass dnf -y group install 'Development Tools'
-    sudo_askpass dnf -y install curl file git libxcrypt-compat zlib-devel xz-devel \
-      bzip2-devel readline-devel sqlite-devel openssl-devel libffi-devel libxml2-devel
-  elif [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
-    log "Installing base-devel and other development tools:"
-    sudo_askpass pacman -Sy --noconfirm --needed base-devel bzip2 curl file git \
-      libffi libxcrypt-compat openssl readline xz zlib
-  else
-    logn "Using unsupported distro. Can't install development tools"
-    logn "Continuing onwards, but this may fail if required tools are missing."
-  fi
+if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
+  log "Installing build-essential and other development tools:"
+  sudo_askpass apt-get -y install build-essential curl file git zlib1g-dev \
+    libssl-dev libbz2-dev libreadline-dev xz-utils libffi-dev liblzma-dev
   logk
+elif [ "$STRAP_DISTRO_FAMILY" == "RHEL" ]; then
+  log "Installing Development Tools group and other development dependencies"
+  sudo_askpass yum -y groupinstall 'Development Tools'
+  sudo_askpass yum -y install curl file git zlib-devel xz-devel bzip2-devel \
+    readline-devel sqlite-devel openssl-devel libffi-devel
+  logk
+elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
+  log "Installing Development Tools group and other development dependencies"
+  sudo_askpass dnf -y group install 'Development Tools'
+  sudo_askpass dnf -y install curl file git libxcrypt-compat zlib-devel xz-devel \
+    bzip2-devel readline-devel sqlite-devel openssl-devel libffi-devel libxml2-devel
+  logk
+elif [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
+  log "Installing base-devel and other development tools:"
+  sudo_askpass pacman -Sy --noconfirm --needed base-devel bzip2 curl file git \
+    libffi libxcrypt-compat openssl readline xz zlib
+  logk
+else
+  logn "Using unsupported distro. Can't install development tools"
+  logn "Continuing onwards, but this may fail if required tools are missing."
 fi
 
 # Setup Git configuration.
