@@ -206,8 +206,8 @@ then
       bzip2-devel readline-devel sqlite-devel openssl-devel libffi-devel libxml2-devel
   elif [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
     log "Installing base-devel and other development tools:"
-    sudo_askpass pacman -Sy base-devel bzip2 curl file git libffi openssl \
-      readline xz zlib
+    sudo_askpass pacman -Sy base-devel bzip2 curl file git libffi libxcrypt-compat \
+      openssl readline xz zlib
   else
     logn "Using unsupported distro. Can't install development tools"
     logn "Continuing onwards, but this may fail if required tools are missing."
