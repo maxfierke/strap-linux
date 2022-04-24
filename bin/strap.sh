@@ -304,7 +304,7 @@ elif [ "$STRAP_DISTRO_FAMILY" == "Fedora" ]; then
   logk
 elif [ "$STRAP_DISTRO_FAMILY" == "Arch" ]; then
   log "Installing software updates:"
-  sudo_askpass pacman -Syu --no-confirm
+  sudo_askpass pacman -Syu --noconfirm
   logk
 else
   log "Unknown distro, can't check for updates. Skipping."
