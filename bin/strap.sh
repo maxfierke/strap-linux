@@ -251,7 +251,7 @@ HOMEBREW_REPOSITORY="$(brew --repository 2>/dev/null || true)"
 [ -d "$HOMEBREW_REPOSITORY" ] || sudo_askpass mkdir -p "$HOMEBREW_REPOSITORY"
 sudo_askpass chown -R "$USER:$STRAP_SUDOER_GROUP" "$HOMEBREW_REPOSITORY"
 
-if [ $HOMEBREW_PREFIX != $HOMEBREW_REPOSITORY ]
+if [ "$HOMEBREW_PREFIX" != "$HOMEBREW_REPOSITORY" ]
 then
   ln -sf "$HOMEBREW_REPOSITORY/bin/brew" "$HOMEBREW_PREFIX/bin/brew"
 fi
@@ -269,12 +269,12 @@ logk
 # Update Homebrew.
 export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 log "Updating Homebrew:"
-brew update
+brew update $Q
 logk
 
 # Install Homebrew Bundle, Cask and Services tap.
 log "Installing Homebrew taps and extensions:"
-brew bundle --file=- <<RUBY
+brew bundle $Q --file=- <<RUBY
 tap 'homebrew/core'
 RUBY
 logk
@@ -311,20 +311,25 @@ else
 fi
 
 if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
-  # Setup AppArmor and auditd
-  sudo_askpass apt-get install -y apparmor-profiles apparmor-utils
 
-  log "Configuring apparmor:"
-  sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.evince
-  sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.firefox
-  sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.avahi-daemon
-  sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.dnsmasq
-  sudo_askpass aa-enforce /etc/apparmor.d/bin.ping
-  sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.rsyslogd
+  if [ -n "$STRAP_CI" ]; then
+    echo "Skipping configuring AppArmor in CI"
+  else
+    # Setup AppArmor and auditd
+    sudo_askpass apt-get install -y apparmor-profiles apparmor-utils
 
-  [ -f "/etc/apparmor.d/usr.bin.chromium-browser" ] && sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.chromium-browser
+    log "Configuring apparmor:"
+    sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.evince
+    sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.firefox
+    sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.avahi-daemon
+    sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.dnsmasq
+    sudo_askpass aa-enforce /etc/apparmor.d/bin.ping
+    sudo_askpass aa-enforce /etc/apparmor.d/usr.sbin.rsyslogd
 
-  logk
+    [ -f "/etc/apparmor.d/usr.bin.chromium-browser" ] && sudo_askpass aa-enforce /etc/apparmor.d/usr.bin.chromium-browser
+
+    logk
+  fi
 
   # Setup auto-updates for APT
   logn "Configuring automatic updates:"
