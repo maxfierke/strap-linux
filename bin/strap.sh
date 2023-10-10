@@ -351,11 +351,15 @@ if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
   sudo_askpass chmod 644 /etc/apt/apt.conf.d/10periodic
   logk
 
-  # Setting up firewall without any rules.
-  log "Enabling firewall (ufw):"
-  sudo_askpass apt-get -y install ufw
-  sudo_askpass ufw enable
-  logk
+  if [ -n "$STRAP_CI" ]; then
+    echo "Skipping configuring firewall (ufw) in CI"
+  else
+    # Setting up firewall without any rules.
+    log "Enabling firewall (ufw):"
+    sudo_askpass apt-get -y install ufw
+    sudo_askpass ufw enable
+    logk
+  fi
 fi
 
 if [ -x "$HOMEBREW_PREFIX/bin/gcc" ]; then
