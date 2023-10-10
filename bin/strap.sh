@@ -353,6 +353,7 @@ if [ "$STRAP_DISTRO_FAMILY" == "Debian" ]; then
 
   # Setting up firewall without any rules.
   log "Enabling firewall (ufw):"
+  sudo_askpass apt-get -y install ufw
   sudo_askpass ufw enable
   logk
 fi
