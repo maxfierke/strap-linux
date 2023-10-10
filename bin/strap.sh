@@ -269,12 +269,12 @@ logk
 # Update Homebrew.
 export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 log "Updating Homebrew:"
-brew update
+brew update --quiet
 logk
 
 # Install Homebrew Bundle, Cask and Services tap.
 log "Installing Homebrew taps and extensions:"
-brew bundle --file=- <<RUBY
+brew bundle --quiet --file=- <<RUBY
 tap 'homebrew/core'
 RUBY
 logk
