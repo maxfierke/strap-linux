@@ -251,7 +251,7 @@ HOMEBREW_REPOSITORY="$(brew --repository 2>/dev/null || true)"
 [ -d "$HOMEBREW_REPOSITORY" ] || sudo_askpass mkdir -p "$HOMEBREW_REPOSITORY"
 sudo_askpass chown -R "$USER:$STRAP_SUDOER_GROUP" "$HOMEBREW_REPOSITORY"
 
-if [ $HOMEBREW_PREFIX != $HOMEBREW_REPOSITORY ]
+if [ "$HOMEBREW_PREFIX" != "$HOMEBREW_REPOSITORY" ]
 then
   ln -sf "$HOMEBREW_REPOSITORY/bin/brew" "$HOMEBREW_PREFIX/bin/brew"
 fi
