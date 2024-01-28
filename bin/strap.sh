@@ -272,13 +272,6 @@ log "Updating Homebrew:"
 brew update $Q
 logk
 
-# Install Homebrew Bundle, Cask and Services tap.
-log "Installing Homebrew taps and extensions:"
-brew bundle $Q --file=- <<RUBY
-tap 'homebrew/core'
-RUBY
-logk
-
 # Check and install any remaining software updates.
 logn "Checking for software updates:"
 
